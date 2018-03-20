@@ -12,19 +12,25 @@ var PushBullet = (function() {
 
     pb.APIKey = null;
 
-    pb.push = function(pushType, devId, email, data, callback) {
+    pb.push = function(pushType, target, target_type, data, callback) {
         var parameters = {type: pushType.toLowerCase()};
-        if(email && devId) {
-            var err = new Error("Cannot push to both device and contact");
-            if(callback) {
-                return callback(err);
-            } else {
-                throw err;
-            }
-        } else if(email) {
-            parameters.email = email;
-        } else if(devId) {
-            parameters.device_iden = devId;
+        switch (target_type) {
+            case "device_iden":
+                parameters.device_iden = target; break;
+            case "email":
+                parameters.email = target; break;
+            case "channel_tag":
+                parameters.channel_tag = target; break;
+            case "client_iden":
+                parameters.client_iden = target; break;
+            default:
+                var err = new Error("Invalid target, see https://docs.pushbullet.com/#target-parameters");
+                if(callback) {
+                    return callback(err);
+                } else {
+                    throw err;
+                }
+                break;
         }
         switch(pushType.toLowerCase()) {
         case "note":
